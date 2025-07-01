@@ -139,7 +139,7 @@ size_t randcpy(char* dest, size_t destLength, const char* source, size_t sourceL
     }
     
     size_t buffer_length = sourceLength;
-    char* buffer = reinterpret_cast<char*>(calloc(1, sourceLength));
+    char* buffer = reinterpret_cast<char*>(malloc(sourceLength));
     memcpy(buffer, source, sourceLength);
     
     for (size_t index = 0; index < destLength; index++) {
