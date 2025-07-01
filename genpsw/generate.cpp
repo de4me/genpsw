@@ -117,7 +117,7 @@ void mixcpy(char* destantion, const char* source, size_t length, int count) {
     memcpy(destantion, source, length);
     
     while (count-- > 0) {
-        mixchars(destantion, length, count);
+        mixchars(destantion, length, static_cast<int>(length));
     }
 }
 
@@ -205,7 +205,7 @@ bool generate_password(char* password, size_t length, int flags) {
         }
     }
     
-    mixchars(buffer, buffer_length, 100);
+    mixchars(buffer, buffer_length, static_cast<int>(buffer_length * 2));
     length = randcpy(password, length, buffer, buffer_length, flags);
     password[length] = 0;
     return true;
