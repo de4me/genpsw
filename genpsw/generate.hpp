@@ -32,7 +32,7 @@ enum {
 void mixchars(char* buffer, size_t length, int count);
 void mixcpy(char* destantion, const char* source, size_t length, int count = 12);
 size_t remchar(char* buffer, size_t length, char ch);
-size_t randcpy(char* dest, size_t destLength, const char* source, size_t sourceLength, int flags);
+size_t randcpy(char* dest, size_t destLength, const char* source, size_t sourceLength, bool noRepeat);
 bool generate_password(char* password, size_t length, int flags);
 
 

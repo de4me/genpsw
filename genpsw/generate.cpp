@@ -122,20 +122,15 @@ void mixcpy(char* destantion, const char* source, size_t length, int count) {
 }
 
 
-size_t randcpy(char* dest, size_t destLength, const char* source, size_t sourceLength, int flags) {
+size_t randcpy(char* dest, size_t destLength, const char* source, size_t sourceLength, bool noRepeat) {
     
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<> dist(0, static_cast<int>(sourceLength - 1));
     
-    bool can_repeat;
-    if (flags & PasswordFlagNoRepeat) {
-        can_repeat = false;
-        if (destLength > sourceLength) {
-            destLength = sourceLength;
-        }
-    } else {
-        can_repeat = true;
+    bool can_repeat = !noRepeat;
+    if (noRepeat && (destLength > sourceLength)) {
+        destLength = sourceLength;
     }
     
     size_t buffer_length = sourceLength;
@@ -206,7 +201,7 @@ bool generate_password(char* password, size_t length, int flags) {
     }
     
     mixchars(buffer, buffer_length, static_cast<int>(buffer_length * 2));
-    length = randcpy(password, length, buffer, buffer_length, flags);
+    length = randcpy(password, length, buffer, buffer_length, flags & PasswordFlagNoRepeat);
     password[length] = 0;
     return true;
 }

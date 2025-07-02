@@ -107,22 +107,6 @@ int main(int argc, const char* args[]) {
             break;
         }
             
-        case 4:
-        {
-            bool arg1_flags = is_flags(args[1]);
-            bool arg2_number = is_number(args[2]);
-            bool arg3_number = is_number(args[3]);
-            
-            if (arg1_flags && arg2_number && arg3_number) {
-                flags_string = args[1];
-                password_length = atoi(args[2]);
-                password_count = atoi(args[3]);
-                break;
-            }
-            print_help(name);
-            return -1;
-        }
-            
         case 3:
         {
             bool arg1_flags = is_flags(args[1]);
@@ -136,6 +120,22 @@ int main(int argc, const char* args[]) {
             if (!arg1_flags && arg2_number) {
                 password_length = atoi(args[1]);
                 password_count = atoi(args[2]);
+                break;
+            }
+            print_help(name);
+            return -1;
+        }
+            
+        case 4:
+        {
+            bool arg1_flags = is_flags(args[1]);
+            bool arg2_number = is_number(args[2]);
+            bool arg3_number = is_number(args[3]);
+            
+            if (arg1_flags && arg2_number && arg3_number) {
+                flags_string = args[1];
+                password_length = atoi(args[2]);
+                password_count = atoi(args[3]);
                 break;
             }
             print_help(name);
