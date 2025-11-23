@@ -5,6 +5,7 @@
 #include <string>
 
 
+#include "config.h"
 #include "generate.hpp"
 
 
@@ -46,10 +47,33 @@ bool is_flags(const char* string) {
 }
 
 
+int mask_char_count(const char* string) {
+    
+    int result = 0;
+    
+    while(auto ch = *string++) {
+        
+        if (ch == CONF_MASK_CHAR) {
+            result++;
+        }
+    }
+    
+    return result;
+}
+
+
+bool is_mask(const char* string) {
+    
+    return strchr(string, CONF_MASK_CHAR) != nullptr;
+}
+
+
 void print_help(const char* name) {
     
-    printf("USE: %s [flags] [password length] [count]\n", name);
-    printf("Example: %s nlL 8 2\n", name);
+    printf("USE: %s [flags] [[password length] | [password mask]] [count]\n", name);
+    printf("Example:\n");
+    printf("\t %s nlL 8 2\n", name);
+    printf("\t %s h \"??-??-??-??\" 2\n", name);
     printf("WHERE flags:\n");
     printf(" n \t- Use decimal numbers\n");
     printf(" l \t- Use lowercase letters\n");
@@ -82,13 +106,71 @@ const char* appname(const char* path) {
 }
 
 
+void print_password(int password_flags, size_t password_length, int password_count) {
+    
+    char* password = reinterpret_cast<char*>(malloc(password_length + 1));
+
+    while (password_count-- > 0) {
+        
+        if (generate_password(password, password_length, password_flags)) {
+            printf("%s\n", password);
+            continue;
+        }
+        break;
+    }
+    
+    free(password);
+}
+
+
+void print_password_masked(int password_flags, size_t password_length, int password_count, const char* mask_string, size_t mask_length) {
+    
+    char* password = reinterpret_cast<char*>(malloc(password_length + 1));
+    
+    if (password == nullptr) {
+        return;
+    }
+        
+    char* password_masked = reinterpret_cast<char*>(malloc(mask_length + 1));
+    if (password_masked != nullptr) {
+        
+        while (password_count-- > 0) {
+            
+            if (generate_password(password, password_length, password_flags)) {
+                auto password_ptr = password;
+                for (int i = 0; i < mask_length; i++) {
+                    
+                    auto ch = mask_string[i];
+                    password_masked[i] = ch == CONF_MASK_CHAR ? *password_ptr++ : ch;
+                }
+                password_masked[mask_length] = 0;
+                printf("%s\n", password_masked);
+                continue;
+            }
+            break;
+        }
+        
+        free(password_masked);
+    }
+    
+    free(password);
+}
+
+
 int main(int argc, const char* args[]) {
     
     const char* flags_string = nullptr;
-    size_t password_length = 32;
-    int password_count = 1;
+    const char* mask_string = nullptr;
+    size_t password_length = CONF_PASSWORD_LENGTH;
+    size_t mask_length = 0;
+    int password_count = CONF_PASSWORD_COUNT;
     int password_flags = 0;
     const char* name = appname(args[0]);
+    
+    int flags_index = 0;
+    int length_index = 0;
+    int count_index = 0;
+    int mask_index = 0;
     
     switch (argc) {
         case 1:
@@ -96,50 +178,87 @@ int main(int argc, const char* args[]) {
             
         case 2:
         {
-            bool arg1_flags = is_flags(args[1]);
+            auto arg1 = args[1];
             
-            if (arg1_flags) {
-                flags_string = args[1];
+            if (is_mask(arg1)) {
+                mask_index = 1;
+                break;
             }
-            else {
-                password_length = atoi(args[1]);
+            
+            if (is_flags(arg1)) {
+                flags_index = 1;
+                break;
             }
-            break;
+            
+            if (is_number(arg1)) {
+                length_index = 2;
+                break;
+            }
+            
+            print_help(name);
+            return -1;
         }
             
         case 3:
         {
-            bool arg1_flags = is_flags(args[1]);
-            bool arg2_number = is_number(args[2]);
+            auto arg1 = args[1];
             
-            if (arg1_flags && arg2_number) {
-                flags_string = args[1];
-                password_length = atoi(args[2]);
-                break;
+            if (is_mask(arg1)) {
+                mask_index = 1;
+            } else if (is_flags(arg1)) {
+                flags_index = 1;
+            } else if (is_number(arg1)) {
+                length_index = 1;
+            } else {
+                print_help(name);
+                return -1;
             }
-            if (!arg1_flags && arg2_number) {
-                password_length = atoi(args[1]);
-                password_count = atoi(args[2]);
-                break;
+            
+            auto arg2 = args[2];
+            
+            if (mask_index == 0 && is_mask(arg2)) {
+                mask_index = 2;
+            } else if (is_number(arg2)) {
+                if (mask_index == 0 && length_index == 0) {
+                    length_index = 2;
+                } else {
+                    count_index = 2;
+                }
+            } else {
+                print_help(name);
+                return -1;
             }
-            print_help(name);
-            return -1;
+            break;
         }
             
         case 4:
         {
-            bool arg1_flags = is_flags(args[1]);
-            bool arg2_number = is_number(args[2]);
-            bool arg3_number = is_number(args[3]);
-            
-            if (arg1_flags && arg2_number && arg3_number) {
-                flags_string = args[1];
-                password_length = atoi(args[2]);
-                password_count = atoi(args[3]);
-                break;
+            if (is_flags(args[1])) {
+                flags_index = 1;
+            } else {
+                print_help(name);
+                return -1;
             }
-            print_help(name);
-            return -1;
+            
+            auto arg2 = args[2];
+            
+            if (is_mask(arg2)) {
+                mask_index = 2;
+            } else if (is_number(arg2)) {
+                length_index = 2;
+            } else {
+                print_help(name);
+                return -1;
+            }
+            
+            if (is_number(args[3])) {
+                count_index = 3;
+            } else {
+                print_help(name);
+                return -1;
+            }
+
+            break;
         }
             
         default:
@@ -147,8 +266,30 @@ int main(int argc, const char* args[]) {
             return -1;
     }
     
+    if (flags_index != 0) {
+        flags_string = args[flags_index];
+    }
+    
+    if (length_index != 0) {
+        password_length = atoi(args[length_index]);
+    }
+    
+    if (count_index != 0) {
+        password_count = atoi(args[count_index]);
+    }
+    
+    if (mask_index != 0) {
+        mask_string = args[mask_index];
+        mask_length = strlen(mask_string);
+        password_length = mask_char_count(mask_string);
+        if (password_length == mask_length) {
+            mask_string = nullptr;
+            mask_length = 0;
+        }
+    }
+    
     if (password_length == 0 || password_count == 0) {
-        return 0;
+        return EXIT_SUCCESS;
     }
     
     if (flags_string != nullptr) {
@@ -197,17 +338,12 @@ int main(int argc, const char* args[]) {
         password_flags |= PasswordFlagDefaultChars;
     }
     
-    char* password = reinterpret_cast<char*>(malloc(password_length + 1));
-    
-    while (password_count-- > 0) {
-        if (generate_password(password, password_length, password_flags)) {
-            printf("%s\n", password);
-            continue;
-        }
-        break;
+    if (mask_string == nullptr) {
+        print_password(password_flags, password_length, password_count);
+    } else {
+        print_password_masked(password_flags, password_length, password_count, mask_string, mask_length);
     }
     
-    free(password);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
