@@ -73,7 +73,7 @@ const char* appname(const char* path) {
         switch (*current) {
             case '\\':
             case '/':
-                return current;
+                return current + 1;
             default:
                 break;
         }
