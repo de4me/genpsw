@@ -14,10 +14,6 @@ using namespace std;
 
 bool is_number(const char* string) {
     
-    if (string == nullptr || *string == 0) {
-        return false;
-    }
-    
     while (*string != 0) {
         if (isdigit(*string++)) {
             continue;
@@ -29,10 +25,6 @@ bool is_number(const char* string) {
 
 
 bool is_flags(const char* string) {
-    
-    if (string == nullptr || *string == 0) {
-        return false;
-    }
     
     if (!is_number(string)) {
         return true;
