@@ -30,7 +30,7 @@ Console application for generating custom passwords.
 
 ## Command Arguments
 
-genpsw [FLAGS] [PASSWORD LENGTH] [NUMBER]
+genpsw [FLAGS] [[PASSWORD LENGTH] | [PASSWORD MASK]] [NUMBER]
 
 WHERE:
 
@@ -63,6 +63,13 @@ Length of the generated password.
 Default: 32.
 
 
+#### PASSWORD MASK
+
+Generate password with mask.
+
+In mask every occurence of '?' will be replaced with a generated symbol.
+
+
 #### NUMBER
 
 Number of passwords to generate so that you can choose one of/or generate several passwords at once.
@@ -72,6 +79,7 @@ Default: 1.
 
 ```bash
 genpsw nlLsr 64 5
+genpsw nlL "1??-2??-3??-4??" 5
 ```
 
 
