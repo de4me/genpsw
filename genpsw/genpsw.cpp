@@ -12,6 +12,13 @@
 using namespace std;
 
 
+#ifdef WIN32
+#define DIRECTORY_SLASH '\\'
+#else
+#define DIRECTORY_SLASH '/'
+#endif
+
+
 bool is_number(const char* string) {
     
     while (*string != 0) {
@@ -80,21 +87,8 @@ void print_help(const char* name) {
 
 const char* appname(const char* path) {
     
-    if (path == nullptr || *path == 0) {
-        return nullptr;
-    }
-    int length = static_cast<int>(strlen(path));
-    const char* current = &path[length];
-    while (--current > path) {
-        switch (*current) {
-            case '\\':
-            case '/':
-                return current + 1;
-            default:
-                break;
-        }
-    }
-    return path;
+    auto appname = strrchr(path, DIRECTORY_SLASH);
+    return appname != nullptr ? appname + 1 : path;
 }
 
 
