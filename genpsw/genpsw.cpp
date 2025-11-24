@@ -181,7 +181,7 @@ int main(int argc, const char* args[]) {
             }
             
             if (is_number(arg1)) {
-                length_index = 2;
+                length_index = 1;
                 break;
             }
             
