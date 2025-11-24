@@ -95,6 +95,10 @@ const char* appname(const char* path) {
 void print_password(int password_flags, size_t password_length, int password_count) {
     
     char* password = reinterpret_cast<char*>(malloc(password_length + 1));
+    
+    if (password == nullptr) {
+        return;
+    }
 
     while (password_count-- > 0) {
         
