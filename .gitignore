@@ -1,5 +1,6 @@
 .DS_Store
 *.xcuserdatad/
+*.xcscheme
 
 /.vs/
 /bin/
