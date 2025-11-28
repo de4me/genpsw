@@ -148,6 +148,10 @@ size_t randcpy(char* dest, size_t destLength, const char* source, size_t sourceL
             continue;
         }
         buffer_length = remchar(buffer, buffer_length, ch);
+        if (buffer_length == 0) {
+            destLength = index;
+            break;
+        }
     }
     
     free(buffer);
