@@ -137,16 +137,16 @@ void perform(const Options& options) {
 
     if (mask_info) {
         
-        if ((password_flags != 0 || (*mask_info).flags == 0) && (password_flags & PasswordFlagAllChars) == 0) {
-            password_flags |= PasswordFlagAllChars;
+        if ((password_flags != 0 || (*mask_info).flags == 0) && (password_flags & PF_ALL_CHARS) == 0) {
+            password_flags |= PF_DEFAULT_CHARS;
         }
         
         print_password_masked(password_flags, password_count, options.getMaskChar(), *mask_info);
         
     } else {
         
-        if ((password_flags & PasswordFlagAllChars) == 0) {
-            password_flags |= PasswordFlagDefaultChars;
+        if ((password_flags & PF_ALL_CHARS) == 0) {
+            password_flags |= PF_DEFAULT_CHARS;
         }
         
         print_password(password_flags, password_length, password_count);

@@ -162,32 +162,32 @@ bool generate_password(char* password, size_t length, int flags) {
     size_t buffer_length = 0;
     char buffer[ALLCHAR_LENGTH];
     
-    if (flags & PasswordFlagNumbers) {
+    if (flags & PF_NUMBERS) {
         mixcpy(&buffer[buffer_length], numbersChars, sizeof(numbersChars));
         buffer_length += sizeof(numbersChars);
     }
     
-    if (flags & PasswordFlagLetters) {
+    if (flags & PF_LETTERS) {
         mixcpy(&buffer[buffer_length], lettersChars, sizeof(lettersChars));
         buffer_length += sizeof(lettersChars);
     }
     
-    if (flags & PasswordFlagUpperLetters) {
+    if (flags & PF_UPPER_LETTERS) {
         mixcpy(&buffer[buffer_length], upperLettersChar, sizeof(upperLettersChar));
         buffer_length += sizeof(upperLettersChar);
     }
     
-    if (flags & PasswordFlagSymbols) {
+    if (flags & PF_SYMBOLS) {
         mixcpy(&buffer[buffer_length], symbolsChars, sizeof(symbolsChars));
         buffer_length += sizeof(symbolsChars);
     }
     
-    if (flags & PasswordFlagExtendedSymbols) {
+    if (flags & PF_EXTENDED_SYMBOLS) {
         mixcpy(&buffer[buffer_length], extendedSymbolsChars, sizeof(extendedSymbolsChars));
         buffer_length += sizeof(extendedSymbolsChars);
     }
     
-    if (flags & PasswordFlagHexNumbers) {
+    if (flags & PF_HEX_NUMBERS) {
         mixcpy(&buffer[buffer_length], hexChars, sizeof(hexChars));
         buffer_length += sizeof(hexChars);
     }
@@ -196,14 +196,14 @@ bool generate_password(char* password, size_t length, int flags) {
         return false;
     }
     
-    if (flags & PasswordFlagNoSimilar) {
+    if (flags & PF_NO_SIMILAR) {
         for (auto ch : similarChars) {
             buffer_length = remchar(buffer, buffer_length, ch);
         }
     }
     
     mixchars(buffer, buffer_length, static_cast<int>(buffer_length * 2));
-    length = randcpy(password, length, buffer, buffer_length, flags & PasswordFlagNoRepeat);
+    length = randcpy(password, length, buffer, buffer_length, flags & PF_NO_REPEAT);
     password[length] = 0;
     return true;
 }

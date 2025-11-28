@@ -16,13 +16,13 @@ void mac_update(char*, size_t, int);
 
 
 const MaskInfo mask_array[] = {
-    {"strong", "??????-??????-??????", "Strong password", nullptr, PasswordFlagNumbers | PasswordFlagLetters | PasswordFlagUpperLetters | PasswordFlagNoSimilar},
-    {"good", "????-????-????", "Good password", nullptr, PasswordFlagNumbers | PasswordFlagLetters | PasswordFlagUpperLetters | PasswordFlagNoSimilar},
-    {"weak", "????-????", "Weak password", nullptr, PasswordFlagNumbers | PasswordFlagLetters | PasswordFlagNoSimilar},
-    {"wifi", "????-???-????", "Wi-Fi password", nullptr, PasswordFlagNumbers | PasswordFlagLetters | PasswordFlagUpperLetters | PasswordFlagNoSimilar},
-    {"mac", "??:??:??:??:??:??", "A unique identifier assigned to a network interface controller", &mac_update, PasswordFlagHexNumbers},
-    {"uuid", "????????-????-????-????-????????????", "128-bit number designed to be a unique identifier for objects in computer systems", &uuid_update, PasswordFlagHexNumbers},
-    {"clsid", "{????????-????-????-????-????????????}", "Globally Unique Identifier that identifies a COM class object", &uuid_update, PasswordFlagHexNumbers}
+    {"strong", "??????-??????-??????", "Strong password", nullptr, PF_NUMBERS | PF_LETTERS | PF_UPPER_LETTERS | PF_NO_SIMILAR},
+    {"good", "????-????-????", "Good password", nullptr, PF_NUMBERS | PF_LETTERS | PF_UPPER_LETTERS | PF_NO_SIMILAR},
+    {"weak", "????-????", "Weak password", nullptr, PF_NUMBERS | PF_LETTERS | PF_NO_SIMILAR},
+    {"wifi", "????-???-????", "Wi-Fi password", nullptr, PF_NUMBERS | PF_LETTERS | PF_UPPER_LETTERS | PF_NO_SIMILAR},
+    {"mac", "??:??:??:??:??:??", "A unique identifier assigned to a network interface controller", &mac_update, PF_HEX_NUMBERS},
+    {"uuid", "????????-????-????-????-????????????", "128-bit number designed to be a unique identifier for objects in computer systems", &uuid_update, PF_HEX_NUMBERS},
+    {"clsid", "{????????-????-????-????-????????????}", "Globally Unique Identifier that identifies a COM class object", &uuid_update, PF_HEX_NUMBERS}
 };
 
 
@@ -90,7 +90,7 @@ char number_to_hexchar(char ch) {
 
 void uuid_update(char* uuid, size_t length, int flags) {
     
-    if ((flags & PasswordFlagAllChars) != PasswordFlagHexNumbers) {
+    if ((flags & PF_ALL_CHARS) != PF_HEX_NUMBERS) {
         return;
     }
     
@@ -124,7 +124,7 @@ void uuid_update(char* uuid, size_t length, int flags) {
 
 void mac_update(char* mac, size_t length, int flags) {
     
-    if ((flags & PasswordFlagAllChars) != PasswordFlagHexNumbers) {
+    if ((flags & PF_ALL_CHARS) != PF_HEX_NUMBERS) {
         return;
     }
     

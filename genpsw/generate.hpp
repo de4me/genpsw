@@ -12,20 +12,20 @@
 #include <stdlib.h>
 
 
-enum {
+enum PasswordFlags {
     
-    PasswordFlagNumbers =               1 << 0,
-    PasswordFlagLetters =               1 << 1,
-    PasswordFlagUpperLetters =          1 << 2,
-    PasswordFlagSymbols =               1 << 3,
-    PasswordFlagExtendedSymbols =       1 << 4,
-    PasswordFlagHexNumbers =            1 << 5,
+    PF_NUMBERS =            1 << 0,
+    PF_LETTERS =            1 << 1,
+    PF_UPPER_LETTERS =      1 << 2,
+    PF_SYMBOLS =            1 << 3,
+    PF_EXTENDED_SYMBOLS =   1 << 4,
+    PF_HEX_NUMBERS =        1 << 5,
     
-    PasswordFlagNoRepeat =              1 << 16,
-    PasswordFlagNoSimilar =             1 << 17,
+    PF_NO_REPEAT =          1 << 16,
+    PF_NO_SIMILAR =         1 << 17,
     
-    PasswordFlagDefaultChars = PasswordFlagNumbers | PasswordFlagLetters | PasswordFlagUpperLetters | PasswordFlagSymbols,
-    PasswordFlagAllChars = PasswordFlagNumbers | PasswordFlagLetters | PasswordFlagUpperLetters | PasswordFlagSymbols | PasswordFlagExtendedSymbols | PasswordFlagHexNumbers
+    PF_DEFAULT_CHARS = PF_NUMBERS | PF_LETTERS | PF_UPPER_LETTERS | PF_SYMBOLS,
+    PF_ALL_CHARS = PF_NUMBERS | PF_LETTERS | PF_UPPER_LETTERS | PF_SYMBOLS | PF_EXTENDED_SYMBOLS | PF_HEX_NUMBERS
 };
 
 

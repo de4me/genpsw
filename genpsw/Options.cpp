@@ -146,28 +146,28 @@ int Options::getPasswordFlags() const {
         
         switch (ch) {
             case 'n':
-                result |= PasswordFlagNumbers;
+                result |= PF_NUMBERS;
                 break;
             case 'h':
-                result |= PasswordFlagHexNumbers;
+                result |= PF_HEX_NUMBERS;
                 break;
             case 'l':
-                result |= PasswordFlagLetters;
+                result |= PF_LETTERS;
                 break;
             case 'L':
-                result |= PasswordFlagUpperLetters;
+                result |= PF_UPPER_LETTERS;
                 break;
             case 's':
-                result |= PasswordFlagSymbols;
+                result |= PF_SYMBOLS;
                 break;
             case 'S':
-                result |= PasswordFlagExtendedSymbols;
+                result |= PF_EXTENDED_SYMBOLS;
                 break;
             case '1':
-                result |= PasswordFlagNoRepeat;
+                result |= PF_NO_REPEAT;
                 break;
             case 'r':
-                result |= PasswordFlagNoSimilar;
+                result |= PF_NO_SIMILAR;
                 break;
             default:
                 throw ch;
