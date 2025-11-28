@@ -32,11 +32,8 @@ void print_version(const char* name) {
 void print_help(const char* name) {
     
     print_version(name);
-    printf("USE: %s [-h] [-v] [flags] [[length] | [mask]] [count]\n", name);
-    printf("Example:\n");
-    printf("\t%s nlL 8 2\n", name);
-    printf("\t%s h \"??-??-??-??\" 2\n", name);
-    printf("\t%s strong 2\n", name);
+    printf("SYNOPSIS:\n");
+    printf("\t%s [-h] [-v] [flags] [[length] | [mask]] [count]\n", name);
     printf("WHERE flags:\n");
     printf("\tn\tUse decimal numbers\n");
     printf("\tl\tUse lowercase letters\n");
@@ -51,6 +48,10 @@ void print_help(const char* name) {
         const auto& mask_info = get_mask(i);
         printf("\t%s \t%s\n", mask_info.name, mask_info.desc);
     }
+    printf("EXAMPLES:\n");
+    printf("\t%s nlL 8 2\n", name);
+    printf("\t%s h \"??-??-??-??\" 2\n", name);
+    printf("\t%s strong 2\n", name);
 }
 
 
