@@ -57,18 +57,18 @@ void print_help(const char* name) {
     
     printf("USE: %s [flags] [[password length] | [mask]] [count]\n", name);
     printf("Example:\n");
-    printf("\t %s nlL 8 2\n", name);
-    printf("\t %s h \"??-??-??-??\" 2\n", name);
-    printf("\t %s strong 2\n", name);
+    printf("\t%s nlL 8 2\n", name);
+    printf("\t%s h \"??-??-??-??\" 2\n", name);
+    printf("\t%s strong 2\n", name);
     printf("WHERE flags:\n");
-    printf(" n \t- Use decimal numbers\n");
-    printf(" l \t- Use lowercase letters\n");
-    printf(" L \t- Use uppercase letters\n");
-    printf(" s \t- Use symbols\n");
-    printf(" S \t- Use extended symbols\n");
-    printf(" h \t- Use hex numbers\n");
-    printf(" r \t- Remove similar letters\n");
-    printf(" 1 \t- Do not repeat letters\n");
+    printf("\tn\t\tUse decimal numbers\n");
+    printf("\tl\t\tUse lowercase letters\n");
+    printf("\tL\t\tUse uppercase letters\n");
+    printf("\ts\t\tUse symbols\n");
+    printf("\tS\t\tUse extended symbols\n");
+    printf("\th\t\tUse hex numbers\n");
+    printf("\tr\t\tRemove similar letters\n");
+    printf("\t1\t\tDo not repeat letters\n");
     printf("PREDEFINED masks:\n");
     for (int i = 0; i < get_masks_count(); i++) {
         const auto& mask_info = get_mask(i);
