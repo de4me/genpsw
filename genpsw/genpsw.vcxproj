@@ -163,6 +163,10 @@
     <ClInclude Include="generate.hpp" />
     <ClInclude Include="mask.hpp" />
     <ClInclude Include="Options.hpp" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="genpsw.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
