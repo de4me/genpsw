@@ -27,6 +27,7 @@ private:
     const char* _passwordMask;
     
     bool _showHelp;
+    bool _showVersion;
     
     const char* getAppName(const char* path) const;
     bool isFlags(const char* string) const;
@@ -41,6 +42,7 @@ public:
     
     bool hasPasswordMask() const { return _passwordMask != nullptr; }
     bool needShowHelp() const { return _showHelp; }
+    bool needShowVersion() const { return _showVersion; }
     
     char getMaskChar() const;
     size_t getPasswordMaskLength() const;

@@ -8,6 +8,8 @@
 #ifndef config_h
 #define config_h
 
+#define GENPSW_VERSION_HI 0
+#define GENPSW_VERSION_LO 9
 
 #define CONF_PASSWORD_LENGTH 32
 #define CONF_PASSWORD_COUNT 1

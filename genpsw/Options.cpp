@@ -29,7 +29,8 @@ _passwordFlags(nullptr),
 _passwordLength(nullptr),
 _passwordCount(nullptr),
 _passwordMask(nullptr),
-_showHelp(false)
+_showHelp(false),
+_showVersion(false)
 {
     
 }
@@ -188,6 +189,10 @@ void Options::parse(int argc, const char* args[]) {
                 case 'h':
                 case '?':
                     _showHelp = true;
+                    break;
+                    
+                case 'v':
+                    _showVersion = true;
                     break;
                     
                 default:

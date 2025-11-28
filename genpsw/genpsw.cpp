@@ -23,9 +23,16 @@ using namespace std;
 #endif
 
 
+void print_version(const char* name) {
+    
+    printf("%s version %i.%i\n", name, GENPSW_VERSION_HI, GENPSW_VERSION_LO);
+}
+
+
 void print_help(const char* name) {
     
-    printf("USE: %s [-h] [flags] [[length] | [mask]] [count]\n", name);
+    print_version(name);
+    printf("USE: %s [-h] [-v] [flags] [[length] | [mask]] [count]\n", name);
     printf("Example:\n");
     printf("\t%s nlL 8 2\n", name);
     printf("\t%s h \"??-??-??-??\" 2\n", name);
@@ -163,7 +170,9 @@ int main(int argc, const char* args[]) {
         
         if (options.needShowHelp()) {
             print_help(options.getAppName());
-        } else {
+        } else if (options.needShowVersion())
+            print_version(options.getAppName());
+        else {
             perform(options);
         }
         
