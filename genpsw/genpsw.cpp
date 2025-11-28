@@ -7,6 +7,7 @@
 
 #include "config.h"
 #include "generate.hpp"
+#include "mask.hpp"
 
 
 using namespace std;
@@ -46,33 +47,19 @@ bool is_flags(const char* string) {
 }
 
 
-int mask_char_count(const char* string) {
-    
-    int result = 0;
-    
-    while(auto ch = *string++) {
-        
-        if (ch == CONF_MASK_CHAR) {
-            result++;
-        }
-    }
-    
-    return result;
-}
-
-
 bool is_mask(const char* string) {
     
-    return strchr(string, CONF_MASK_CHAR) != nullptr;
+    return strchr(string, CONF_MASK_CHAR) != nullptr || get_mask(string);
 }
 
 
 void print_help(const char* name) {
     
-    printf("USE: %s [flags] [[password length] | [password mask]] [count]\n", name);
+    printf("USE: %s [flags] [[password length] | [mask]] [count]\n", name);
     printf("Example:\n");
     printf("\t %s nlL 8 2\n", name);
     printf("\t %s h \"??-??-??-??\" 2\n", name);
+    printf("\t %s strong 2\n", name);
     printf("WHERE flags:\n");
     printf(" n \t- Use decimal numbers\n");
     printf(" l \t- Use lowercase letters\n");
@@ -82,6 +69,11 @@ void print_help(const char* name) {
     printf(" h \t- Use hex numbers\n");
     printf(" r \t- Remove similar letters\n");
     printf(" 1 \t- Do not repeat letters\n");
+    printf("PREDEFINED masks:\n");
+    for (int i = 0; i < get_masks_count(); i++) {
+        const auto& mask_info = get_mask(i);
+        printf("\t%s \t%s\n", mask_info.name, mask_info.desc);
+    }
 }
 
 
@@ -113,27 +105,54 @@ void print_password(int password_flags, size_t password_length, int password_cou
 }
 
 
-void print_password_masked(int password_flags, size_t password_length, int password_count, const char* mask_string, size_t mask_length) {
+void print_password_masked(int password_flags, int password_count, char mask_char, const MaskInfo& mask_info) {
+    
+    auto mask_string = mask_info.mask;
+    if (mask_string == nullptr) {
+        return;
+    }
+    
+    auto mask_length = strlen(mask_string);
+    if (mask_length == 0) {
+        return;
+    }
+    
+    auto password_length = get_mask_char_count(mask_string, mask_char);
     
     char* password = reinterpret_cast<char*>(malloc(password_length + 1));
-    
     if (password == nullptr) {
         return;
     }
-        
+
     char* password_masked = reinterpret_cast<char*>(malloc(mask_length + 1));
     if (password_masked != nullptr) {
+        
+        if (password_flags == 0) {
+            password_flags = mask_info.flags;
+        }
         
         while (password_count-- > 0) {
             
             if (generate_password(password, password_length, password_flags)) {
                 auto password_ptr = password;
-                for (int i = 0; i < mask_length; i++) {
+                auto current_mask_length = mask_length;
+                for (size_t i = 0; i < current_mask_length; i++) {
                     
-                    auto ch = mask_string[i];
-                    password_masked[i] = ch == CONF_MASK_CHAR ? *password_ptr++ : ch;
+                    char ch = mask_string[i];
+                    if (ch == mask_char) {
+                        ch = *password_ptr++;
+                        if (ch == 0) {
+                            current_mask_length = i;
+                            break;
+                        }
+                    }
+                    
+                    password_masked[i] = ch;
                 }
-                password_masked[mask_length] = 0;
+                password_masked[current_mask_length] = 0;
+                if (mask_info.update != nullptr) {
+                    mask_info.update(password_masked, current_mask_length, password_flags);
+                }
                 printf("%s\n", password_masked);
                 continue;
             }
@@ -150,9 +169,7 @@ void print_password_masked(int password_flags, size_t password_length, int passw
 int main(int argc, const char* args[]) {
     
     const char* flags_string = nullptr;
-    const char* mask_string = nullptr;
     size_t password_length = CONF_PASSWORD_LENGTH;
-    size_t mask_length = 0;
     int password_count = CONF_PASSWORD_COUNT;
     int password_flags = 0;
     const char* name = appname(args[0]);
@@ -262,24 +279,16 @@ int main(int argc, const char* args[]) {
     
     if (length_index != 0) {
         password_length = atoi(args[length_index]);
+        if (password_length == 0) {
+            return EXIT_SUCCESS;
+        }
     }
     
     if (count_index != 0) {
         password_count = atoi(args[count_index]);
-    }
-    
-    if (mask_index != 0) {
-        mask_string = args[mask_index];
-        mask_length = strlen(mask_string);
-        password_length = mask_char_count(mask_string);
-        if (password_length == mask_length) {
-            mask_string = nullptr;
-            mask_length = 0;
+        if (password_count == 0) {
+            return EXIT_SUCCESS;
         }
-    }
-    
-    if (password_length == 0 || password_count == 0) {
-        return EXIT_SUCCESS;
     }
     
     if (flags_string != nullptr) {
@@ -324,16 +333,52 @@ int main(int argc, const char* args[]) {
         }
     }
     
-    if ((password_flags & PasswordFlagAllChars) == 0) {
-        password_flags |= PasswordFlagDefaultChars;
-    }
-    
-    if (mask_string == nullptr) {
+    if (mask_index == 0) {
+        
+        if ((password_flags & PasswordFlagAllChars) == 0) {
+            password_flags |= PasswordFlagDefaultChars;
+        }
+        
         print_password(password_flags, password_length, password_count);
     } else {
-        print_password_masked(password_flags, password_length, password_count, mask_string, mask_length);
+        
+        auto mask_string = args[mask_index];
+        password_length = get_mask_char_count(mask_string, CONF_MASK_CHAR);
+        if (password_length == 0) {
+            
+            const auto& mask_info = get_mask(mask_string);
+            if (!mask_info) {
+                
+                print_help(name);
+                return -1;
+            }
+            
+            if (password_flags != 0 && (password_flags & PasswordFlagAllChars) == 0) {
+                password_flags |= PasswordFlagDefaultChars;
+            }
+            
+            print_password_masked(password_flags, password_count, get_mask_char(), *mask_info);
+        } else {
+            
+            if ((password_flags & PasswordFlagAllChars) == 0) {
+                password_flags |= PasswordFlagDefaultChars;
+            }
+            
+            if (strlen(mask_string) != password_length) {
+                
+                MaskInfo custom_mask_info;
+                
+                memset(&custom_mask_info, 0, sizeof(custom_mask_info));
+                custom_mask_info.mask = mask_string;
+                
+                print_password_masked(password_flags, password_count, CONF_MASK_CHAR, custom_mask_info);
+            } else {
+                
+                print_password(password_flags, password_length, password_count);
+            }
+        }
     }
-    
+
     return EXIT_SUCCESS;
 }
 
