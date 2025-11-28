@@ -4,6 +4,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <vector>
 
 
 #include "config.h"
@@ -54,22 +55,15 @@ void print_use_for_help() {
 
 void print_password(int password_flags, size_t password_length, int password_count) {
     
-    char* password = reinterpret_cast<char*>(malloc(password_length + 1));
+    std::vector<char> password(password_length + 1);
     
-    if (password == nullptr) {
-        return;
-    }
-
     while (password_count-- > 0) {
         
-        if (generate_password(password, password_length, password_flags)) {
-            printf("%s\n", password);
-            continue;
+        if (!generate_password(password.data(), password_length, password_flags)) {
+            return;
         }
-        break;
+        printf("%s\n", password.data());
     }
-    
-    free(password);
 }
 
 
@@ -86,51 +80,46 @@ void print_password_masked(int password_flags, int password_count, char mask_cha
     }
     
     auto password_length = get_mask_char_count(mask_string, mask_char);
-    
-    char* password = reinterpret_cast<char*>(malloc(password_length + 1));
-    if (password == nullptr) {
+    if (password_length ==0) {
         return;
     }
-
-    char* password_masked = reinterpret_cast<char*>(malloc(mask_length + 1));
-    if (password_masked != nullptr) {
-        
-        if (password_flags == 0) {
-            password_flags = mask_info.flags;
-        }
-        
-        while (password_count-- > 0) {
-            
-            if (generate_password(password, password_length, password_flags)) {
-                auto password_ptr = password;
-                auto current_mask_length = mask_length;
-                for (size_t i = 0; i < current_mask_length; i++) {
-                    
-                    char ch = mask_string[i];
-                    if (ch == mask_char) {
-                        ch = *password_ptr++;
-                        if (ch == 0) {
-                            current_mask_length = i;
-                            break;
-                        }
-                    }
-                    
-                    password_masked[i] = ch;
-                }
-                password_masked[current_mask_length] = 0;
-                if (mask_info.update != nullptr) {
-                    mask_info.update(password_masked, current_mask_length, password_flags);
-                }
-                printf("%s\n", password_masked);
-                continue;
-            }
-            break;
-        }
-        
-        free(password_masked);
+    
+    if (password_flags == 0) {
+        password_flags = mask_info.flags;
     }
     
-    free(password);
+    vector<char> password(password_length + 1);
+    vector<char> password_masked(mask_length + 1);
+    
+    while (password_count-- > 0) {
+        
+        if (!generate_password(password.data(), password_length, password_flags)) {
+            return;
+        }
+        
+        auto password_ptr = password.data();
+        auto current_mask_length = mask_length;
+        
+        for (size_t i = 0; i < current_mask_length; i++) {
+            
+            char ch = mask_string[i];
+            if (ch == mask_char) {
+                ch = *password_ptr++;
+                if (ch == 0) {
+                    current_mask_length = i;
+                    break;
+                }
+            }
+            
+            password_masked[i] = ch;
+        }
+        
+        password_masked[current_mask_length] = 0;
+        if (mask_info.update != nullptr) {
+            mask_info.update(password_masked.data(), current_mask_length, password_flags);
+        }
+        printf("%s\n", password_masked.data());
+    }
 }
 
 
@@ -148,7 +137,7 @@ void perform(const Options& options) {
 
     if (mask_info) {
         
-        if (password_flags != 0 && (password_flags & PasswordFlagAllChars) == 0) {
+        if ((password_flags != 0 || (*mask_info).flags == 0) && (password_flags & PasswordFlagAllChars) == 0) {
             password_flags |= PasswordFlagAllChars;
         }
         
