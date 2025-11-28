@@ -3,11 +3,13 @@
 
 
 #include <string>
+#include <stdexcept>
 
 
 #include "config.h"
 #include "generate.hpp"
 #include "mask.hpp"
+#include "Options.hpp"
 
 
 using namespace std;
@@ -18,39 +20,6 @@ using namespace std;
 #else
 #define DIRECTORY_SLASH '/'
 #endif
-
-
-bool is_number(const char* string) {
-    
-    while (*string != 0) {
-        if (isdigit(*string++)) {
-            continue;
-        }
-        return false;
-    }
-    return true;
-}
-
-
-bool is_flags(const char* string) {
-    
-    if (!is_number(string)) {
-        return true;
-    }
-    switch (atoi(string)) {
-        case 1:
-            return true;
-
-        default:
-            return false;
-    }
-}
-
-
-bool is_mask(const char* string) {
-    
-    return strchr(string, CONF_MASK_CHAR) != nullptr || get_mask(string);
-}
 
 
 void print_help(const char* name) {
@@ -77,10 +46,9 @@ void print_help(const char* name) {
 }
 
 
-const char* appname(const char* path) {
+void print_use_for_help() {
     
-    auto appname = strrchr(path, DIRECTORY_SLASH);
-    return appname != nullptr ? appname + 1 : path;
+    printf("%s", "Use -h or -? for help\n");
 }
 
 
@@ -166,219 +134,67 @@ void print_password_masked(int password_flags, int password_count, char mask_cha
 }
 
 
-int main(int argc, const char* args[]) {
+void perform(const Options& options) {
     
-    const char* flags_string = nullptr;
-    size_t password_length = CONF_PASSWORD_LENGTH;
-    int password_count = CONF_PASSWORD_COUNT;
-    int password_flags = 0;
-    const char* name = appname(args[0]);
+    auto password_count = options.getPasswordCount();
+    auto password_length = options.getPasswordLength();
     
-    int flags_index = 0;
-    int length_index = 0;
-    int count_index = 0;
-    int mask_index = 0;
+    if (password_count == 0 || password_length == 0) {
+        return;
+    }
     
-    switch (argc) {
-        case 1:
-            break;
-            
-        case 2:
-        {
-            auto arg1 = args[1];
-            
-            if (is_mask(arg1)) {
-                mask_index = 1;
-                break;
-            }
-            
-            if (is_flags(arg1)) {
-                flags_index = 1;
-                break;
-            }
-            
-            if (is_number(arg1)) {
-                length_index = 1;
-                break;
-            }
-            
-            print_help(name);
-            return -1;
-        }
-            
-        case 3:
-        {
-            auto arg1 = args[1];
-            
-            if (is_mask(arg1)) {
-                mask_index = 1;
-            } else if (is_flags(arg1)) {
-                flags_index = 1;
-            } else if (is_number(arg1)) {
-                length_index = 1;
-            } else {
-                print_help(name);
-                return -1;
-            }
-            
-            auto arg2 = args[2];
-            
-            if (mask_index == 0 && is_mask(arg2)) {
-                mask_index = 2;
-            } else if (is_number(arg2)) {
-                if (mask_index == 0 && length_index == 0) {
-                    length_index = 2;
-                } else {
-                    count_index = 2;
-                }
-            } else {
-                print_help(name);
-                return -1;
-            }
-            break;
-        }
-            
-        case 4:
-        {
-            if (is_flags(args[1])) {
-                flags_index = 1;
-            } else {
-                print_help(name);
-                return -1;
-            }
-            
-            auto arg2 = args[2];
-            
-            if (is_mask(arg2)) {
-                mask_index = 2;
-            } else if (is_number(arg2)) {
-                length_index = 2;
-            } else {
-                print_help(name);
-                return -1;
-            }
-            
-            if (is_number(args[3])) {
-                count_index = 3;
-            } else {
-                print_help(name);
-                return -1;
-            }
+    auto password_flags = options.getPasswordFlags();
+    auto mask_info = options.getPasswordMask();
 
-            break;
+    if (mask_info) {
+        
+        if (password_flags != 0 && (password_flags & PasswordFlagAllChars) == 0) {
+            password_flags |= PasswordFlagAllChars;
         }
-            
-        default:
-            print_help(name);
-            return -1;
-    }
-    
-    if (flags_index != 0) {
-        flags_string = args[flags_index];
-    }
-    
-    if (length_index != 0) {
-        password_length = atoi(args[length_index]);
-        if (password_length == 0) {
-            return EXIT_SUCCESS;
-        }
-    }
-    
-    if (count_index != 0) {
-        password_count = atoi(args[count_index]);
-        if (password_count == 0) {
-            return EXIT_SUCCESS;
-        }
-    }
-    
-    if (flags_string != nullptr) {
-        const char* flag_curent = flags_string;
-        int flags_count = static_cast<int>(strlen(flags_string));
-        while (flags_count-- > 0) {
-            char ch = *flag_curent;
-            bool first_flag = strchr(flags_string, ch) == flag_curent;
-            flag_curent++;
-            if (!first_flag) {
-                continue;
-            }
-            switch (ch) {
-                case 'n':
-                    password_flags |= PasswordFlagNumbers;
-                    break;
-                case 'h':
-                    password_flags |= PasswordFlagHexNumbers;
-                    break;
-                case 'l':
-                    password_flags |= PasswordFlagLetters;
-                    break;
-                case 'L':
-                    password_flags |= PasswordFlagUpperLetters;
-                    break;
-                case 's':
-                    password_flags |= PasswordFlagSymbols;
-                    break;
-                case 'S':
-                    password_flags |= PasswordFlagExtendedSymbols;
-                    break;
-                case '1':
-                    password_flags |= PasswordFlagNoRepeat;
-                    break;
-                case 'r':
-                    password_flags |= PasswordFlagNoSimilar;
-                    break;
-                default:
-                    print_help(name);
-                    return -1;
-            }
-        }
-    }
-    
-    if (mask_index == 0) {
+        
+        print_password_masked(password_flags, password_count, options.getMaskChar(), *mask_info);
+        
+    } else {
         
         if ((password_flags & PasswordFlagAllChars) == 0) {
             password_flags |= PasswordFlagDefaultChars;
         }
         
         print_password(password_flags, password_length, password_count);
-    } else {
-        
-        auto mask_string = args[mask_index];
-        password_length = get_mask_char_count(mask_string, CONF_MASK_CHAR);
-        if (password_length == 0) {
-            
-            const auto& mask_info = get_mask(mask_string);
-            if (!mask_info) {
-                
-                print_help(name);
-                return -1;
-            }
-            
-            if (password_flags != 0 && (password_flags & PasswordFlagAllChars) == 0) {
-                password_flags |= PasswordFlagDefaultChars;
-            }
-            
-            print_password_masked(password_flags, password_count, get_mask_char(), *mask_info);
-        } else {
-            
-            if ((password_flags & PasswordFlagAllChars) == 0) {
-                password_flags |= PasswordFlagDefaultChars;
-            }
-            
-            if (strlen(mask_string) != password_length) {
-                
-                MaskInfo custom_mask_info;
-                
-                memset(&custom_mask_info, 0, sizeof(custom_mask_info));
-                custom_mask_info.mask = mask_string;
-                
-                print_password_masked(password_flags, password_count, CONF_MASK_CHAR, custom_mask_info);
-            } else {
-                
-                print_password(password_flags, password_length, password_count);
-            }
-        }
     }
-
-    return EXIT_SUCCESS;
 }
 
+
+int main(int argc, const char* args[]) {
+    
+    Options options;
+    
+    try {
+        options.parse(argc, args);
+        
+        if (options.needShowHelp()) {
+            print_help(options.getAppName());
+        } else {
+            perform(options);
+        }
+        
+        return EXIT_SUCCESS;
+    }
+    
+    catch(char ch) {
+        printf("invalid flag: %c\n", ch);
+        print_use_for_help();
+        return EXIT_FAILURE;
+    }
+    
+    catch(const std::invalid_argument& e) {
+        printf("invalid argument: %s\n", e.what());
+        print_use_for_help();
+        return EXIT_FAILURE;
+    }
+    
+    catch(const std::exception& e) {
+        printf("error: %s\n", e.what());
+        return EXIT_FAILURE;
+    }
+}

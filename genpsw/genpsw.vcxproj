@@ -156,11 +156,13 @@
     <ClCompile Include="generate.cpp" />
     <ClCompile Include="genpsw.cpp" />
     <ClCompile Include="mask.cpp" />
+    <ClCompile Include="Options.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
     <ClInclude Include="generate.hpp" />
     <ClInclude Include="mask.hpp" />
+    <ClInclude Include="Options.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
