@@ -77,20 +77,18 @@ size_t remchar(char* buffer, size_t length, char ch) {
     
     char* current = buffer;
     char* end = buffer + length;
-    size_t count = 0;
+    char* next;
+    size_t result = 0;
     do {
-        current = reinterpret_cast<char*>(memchr(current, ch, end - current));
+        current = reinterpret_cast<char*>(memchr(current, ch, end - current - result));
         if (current == nullptr) {
             break;
         }
-        count++;
-        char* next = current + 1;
-        if (next == end) {
-            break;
-        }
-        memcpy(current, next, end - current - count);
-    } while (true);
-    return length - count;
+        next = current + 1;
+        memcpy(current, next, end - next - result);
+        result++;
+    } while (next < end);
+    return length - result;
 }
 
 
