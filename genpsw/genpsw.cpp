@@ -63,7 +63,7 @@ void print_use_for_help() {
 
 void print_password(int password_flags, size_t password_length, int password_count) {
     
-    std::vector<char> password(password_length + 1);
+    vector<char> password(password_length + 1);
     
     while (password_count-- > 0) {
         
@@ -186,13 +186,13 @@ int main(int argc, const char* args[]) {
         return EXIT_FAILURE;
     }
     
-    catch(const std::invalid_argument& e) {
+    catch(const invalid_argument& e) {
         printf("invalid argument: %s\n", e.what());
         print_use_for_help();
         return EXIT_FAILURE;
     }
     
-    catch(const std::exception& e) {
+    catch(const exception& e) {
         printf("error: %s\n", e.what());
         return EXIT_FAILURE;
     }
