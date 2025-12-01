@@ -16,13 +16,6 @@
 using namespace std;
 
 
-#ifdef WIN32
-#define DIRECTORY_SLASH '\\'
-#else
-#define DIRECTORY_SLASH '/'
-#endif
-
-
 void print_version(const char* name) {
     
     printf("%s version %i.%i\n", name, GENPSW_VERSION_HI, GENPSW_VERSION_LO);
