@@ -38,11 +38,10 @@ _showVersion(false)
 
 bool Options::isNumber(const char* string) const {
     
-    while (*string != 0) {
-        if (isdigit(*string++)) {
-            continue;
+    while (auto ch = *string++) {
+        if (!isdigit(ch)) {
+            return false;
         }
-        return false;
     }
     return true;
 }
