@@ -33,7 +33,7 @@ void print_help(const char* name) {
     
     print_version(name);
     printf("SYNOPSIS:\n");
-    printf("\t%s [-h] [-v] [flags] [[length] | [mask]] [count]\n", name);
+    printf("\t%s [-h] [-v] [flags] [[length] | [mask]] [quantity]\n", name);
     printf("WHERE flags:\n");
     printf("\tn\tUse decimal numbers\n");
     printf("\tl\tUse lowercase letters\n");
@@ -41,8 +41,8 @@ void print_help(const char* name) {
     printf("\ts\tUse symbols\n");
     printf("\tS\tUse extended symbols\n");
     printf("\th\tUse hex numbers\n");
-    printf("\tr\tRemove similar letters\n");
-    printf("\t1\tDo not repeat letters\n");
+    printf("\tr\tRemove similar characters\n");
+    printf("\t1\tNo duplicate characters\n");
     printf("PREDEFINED masks:\n");
     for (int i = 0; i < get_masks_count(); i++) {
         const auto& mask_info = get_mask(i);
