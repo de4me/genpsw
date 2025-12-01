@@ -47,7 +47,7 @@ genpsw l "1??-2??-3??-4??" 5
 
 ## Command Arguments
 
-genpsw [-h] [-v] [FLAGS] [[LENGTH] | [MASK]] [COUNT]
+genpsw [-h] [-v] [FLAGS] [[LENGTH] | [MASK]] [QUANTITY]
 
 
 #### WHERE
@@ -65,8 +65,8 @@ genpsw [-h] [-v] [FLAGS] [[LENGTH] | [MASK]] [COUNT]
 | s | Use symbols \*
 | S | Use extended symbols
 | h | Use hex numbers
-| r | Remove similar letters
-| 1 | Do not repeat letters
+| r | Remove similar characters
+| 1 | No duplicate characters
 |   | \* - Set by Default
 
 
@@ -95,9 +95,9 @@ Length of the generated password.
 *Default: 32.*
 
 
-#### COUNT
+#### QUANTITY
 
-Number of passwords to generate so that you can choose one of/or generate several passwords at once.
+The number of passwords to generate, so you can choose one of them or generate multiple passwords at once.
 
 *Default: 1.*
 
